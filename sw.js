@@ -1,4 +1,4 @@
-const CACHE_NAME = 'text-editor-v2.1';
+const CACHE_NAME = 'text-editor-v3';
 const ASSETS = [
   './',
   './index.html',
