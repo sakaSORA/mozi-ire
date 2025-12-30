@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>文字入れ Pro (Stable & Crop)</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1c1c1e">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DotGothic16&family=Kaisei+Tokumin:wght@700&family=Kiwi+Maru:wght@500&family=M+PLUS+1p:wght@800&family=Sawarabi+Mincho&display=swap" rel="stylesheet">
     <style>
@@ -109,7 +113,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
     <script>
-        // 厳格な初期化管理
+        // PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('SW registered!', reg))
+                    .catch(err => console.error('SW register failed:', err));
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             const canvas = document.getElementById('canvas');
             const ctx = canvas.getContext('2d');
@@ -140,7 +152,6 @@
                 return { text: val, x: canvas.width/2 || 400, y: canvas.height/2 || 400, fontSize: 100, fontFamily: "sans-serif", color: "#ffffff", strokeColor: "#000000", strokeWidth: 5, bgColor: "#000000", bgAlpha: 0, rotate: 0, isVertical: false }; 
             }
 
-            // 画像読込 & クロップ起動
             el.imageInput.addEventListener('change', (e) => {
                 const file = e.target.files[0];
                 if (!file) return;
@@ -150,7 +161,6 @@
                     img.src = ev.target.result;
                     document.getElementById('cropModal').style.display = 'flex';
                     if (cropper) cropper.destroy();
-                    // Cropper.jsが読み込まれているか確認
                     if (typeof Cropper !== 'undefined') {
                         cropper = new Cropper(img, { viewMode: 1, dragMode: 'move', autoCropArea: 1 });
                     } else {
@@ -174,7 +184,6 @@
                 uploadedImage.src = croppedCanvas.toDataURL();
             };
 
-            // フォント読込
             el.fontInput.addEventListener('change', async (e) => {
                 const file = e.target.files[0]; if (!file) return;
                 const name = "Font_" + Date.now();
@@ -260,7 +269,6 @@
                 });
             }
 
-            // イベント登録
             canvas.addEventListener('touchstart', () => isDragging = true, {passive:true});
             canvas.addEventListener('touchmove', (e) => {
                 if(isDragging && texts[selectedIndex]){
@@ -283,7 +291,6 @@
             el.resetBtn.onclick=()=>{texts[selectedIndex].x=canvas.width/2; texts[selectedIndex].y=canvas.height/2; texts[selectedIndex].rotate=0; draw();};
             el.downloadBtn.onclick=()=>{const l=document.createElement('a'); l.download=`photo_${Date.now()}.png`; l.href=canvas.toDataURL(); l.click();};
 
-            // タブ切り替えグローバル関数化
             window.openTab = (id) => {
                 document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
                 document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -291,7 +298,6 @@
                 event.currentTarget.classList.add('active');
             };
 
-            // 初期化
             const fonts = ["標準","特太","明朝","手書","レトロ","極太","ドット"];
             const values = ["sans-serif","'M PLUS 1p'","'Sawarabi Mincho'","'Kiwi Maru'","'Kaisei Tokumin'","'Dela Gothic One'","'DotGothic16'"];
             fonts.forEach((f,i)=>el.fontSelect.add(new Option(f,values[i])));
