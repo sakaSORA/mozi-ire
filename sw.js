@@ -1,4 +1,4 @@
-const CACHE_NAME = 'text-editor-v1';
+const CACHE_NAME = 'text-editor-v2';
 const ASSETS = [
   './',
   './index.html', // あなたのHTMLファイル名に合わせて変更してください
